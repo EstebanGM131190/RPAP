@@ -1,18 +1,33 @@
-/*
-  ESTE CÓDIGO SIRVE PARA HACER LA CALIBRACIÓN DEL SENSOR DE CONDUCTIVIDAD.
-  
-  TENER EN CUENTA EL TIPO DE AGUA EN EL QUE SE VA A HACER LA MEDICIÓN PARA
-  SELECCIONAR LAS SOLUCIONES DEL TIPO DE K CORRECTA.
-  
-  AUTORES: SERGIO EDUARDO MERCADO ALVARADO
-           MARCO ANTONIO RUIZ SANTANA
-  
-  VERSIÓN: 1.0
-  
-*/
 
+/*! \file Wasp_test_lib.cpp
+ *  \brief Library for managing NODES 
+ *
+ *
+ *  Version:		2.0
+ *   
+ * AUTORES: SERGIO EDUARDO MERCADO ALVARADO
+ *          MARCO ANTONIO RUIZ SANTANA
+ * 
+ *  Modified by:	Esteban González Moreno
+ *  Conductividad
+ *   ESTE CÓDIGO SIRVE PARA HACER LA CALIBRACIÓN DEL SENSOR DE CONDUCTIVIDAD.
+ * 
+ *   TENER EN CUENTA EL TIPO DE AGUA EN EL QUE SE VA A HACER LA MEDICIÓN PARA
+ *   SELECCIONAR LAS SOLUCIONES DEL TIPO DE K CORRECTA.
+ *  
+ */
+
+
+
+
+/******************************************************************************
+ * Includes            Includes of the Sensor Board and Communications modules used
+ ******************************************************************************/
 #include <WaspSensorSW.h>
 
+/******************************************************************************
+ * Definitions & Variable Declarations
+ *****************************************************************************/
 float value_cond;
 float value_calculated;
 
@@ -27,6 +42,10 @@ float value_calculated;
 #define point2_cal 44.00                           //Segundo valor obtenido en la consola
 
 conductivityClass ConductivitySensor;
+
+/** THIS LINE IS ONLY FOR verion 2 if you are using verion 3 of waspSensorSW.h this line is not needed */
+WaspSensorSW Water;
+/****/
 
 void setup()
 {

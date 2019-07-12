@@ -1,17 +1,29 @@
-/*
-  ESTE CÓDIGO SIRVE PARA HACER LA CALIBRACIÓN DEL SENSOR DE OXIGENO DISUELTO.
-  
-  SE CALIBRA PRIMERAMENTE SIN SOLUCIÓN, ÚNICAMENTE EN CONTACTO CON EL AIRE,
-  PARA DESPUES INTRODUCIR EL SENSOR A LA SOLUCIÓN. 
-   
-  AUTORES: SERGIO EDUARDO MERCADO ALVARADO
-           MARCO ANTONIO RUIZ SANTANA
-  
-  VERSIÓN: 1.0
-  
-*/
 
+/*! \file Wasp_test_lib.cpp
+ *  \brief Library for managing NODES 
+ *
+ *
+ *  Version:		2.0
+ *  AUTORES: SERGIO EDUARDO MERCADO ALVARADO
+ *           MARCO ANTONIO RUIZ SANTANA
+ *  Modified by:	Esteban González Moreno
+ *  ESTE CÓDIGO SIRVE PARA HACER LA CALIBRACIÓN DEL SENSOR DE OXIGENO DISUELTO.
+ * 
+ *  SE CALIBRA PRIMERAMENTE SIN SOLUCIÓN, ÚNICAMENTE EN CONTACTO CON EL AIRE,
+ *  PARA DESPUES INTRODUCIR EL SENSOR A LA SOLUCIÓN. 
+
+ */
+
+
+
+/******************************************************************************
+ * Includes            Includes of the Sensor Board and Communications modules used
+ ******************************************************************************/
 #include <WaspSensorSW.h>
+
+/******************************************************************************
+ * Definitions & Variable Declarations
+ *****************************************************************************/
 
 float value_do;
 float value_calculated;
@@ -22,6 +34,10 @@ float value_calculated;
 #define zero_calibration 0.10583
 
 DOClass DOSensor;
+
+/** THIS LINE IS ONLY FOR verion 2 if you are using verion 3 of waspSensorSW.h this line is not needed */
+WaspSensorSW Water;
+/****/
 
 void setup()
 {

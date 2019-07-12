@@ -1,27 +1,45 @@
-/*
-Nodo Ambiental A2/A3
 
-Localización: Edificio B - Iteso
-Geolocalización:
-  Latitud:  20.6080712 N 
-  Longitud: -103.4176272 W
-  
-Medio de comunicación: ZigBee
-ZigBee ID: 013A200 40E5573B
+/*! \file Wasp_test_lib.cpp
+ *  \brief Library for managing NODES 
+ *
+ *
+ *  Version:		2.0
+ *  Crea
+ *  Modified by:	Esteban González Moreno
+ *  Nodo ambiental A2 Edificio B
+ *  
+ * 
+ * Localización: Edificio B - Iteso
+ * Geolocalización:
+ * Latitud:  20.6080712 N 
+ * Longitud: -103.4176272 W
+ * 
+ * Medio de comunicación: ZigBee
+ * ZigBee ID: 013A200 40E5573B
+ * 
+ * Primera instalación: 4 de abril de 2017
+ *  
+ */
 
-Primera instalación: 4 de abril de 2017
 
-*/
-
-// Step 1. Includes of the Sensor Board and Communications modules used
-
+/******************************************************************************
+ * Includes            Includes of the Sensor Board and Communications modules used
+ ******************************************************************************/
 #include <WaspSensorGas_v20.h>
 #include <WaspXBeeZB.h>
 
-// El tiempo correcto para WAITTIME es de 1000.
-// Valores más pequeños permiten realizar pruebas de manera práctica
-//#define WAITTIME 1000
-#define WAITTIME 100
+
+
+/******************************************************************************
+ * Definitions & Variable Declarations
+ *****************************************************************************/
+
+// The default wait time value is 1000
+#define WAITTIME 1000
+
+/********** VARIABLE NOT USED ********************************/
+// define timeout for listening to messages
+#define TIMEOUT 10000
 
 // Destination MAC address
 //////////////////////////////////////////
@@ -29,7 +47,6 @@ char RX_ADDRESS[] = "0";
 //////////////////////////////////////////
 uint8_t  PANID[8]={0x00,0x00,0x00,0x00,0x00,0x00,0x95,0x95};
 
-// Step 2. Variables declaration
 
 char  CONNECTOR_A[5] = "Temp";      
 char  CONNECTOR_B[4] = "Hum";    
@@ -101,18 +118,23 @@ uint8_t divisor = 30;
 uint8_t socket=SOCKET0;
 ///////////////////////////////////////
 
-// define timeout for listening to messages
-#define TIMEOUT 10000
-
 // variable to measure time
 unsigned long previous;
+
+
+
+/**********************************************/
+/**** TEST MODE  value != 0 for printing,******/
+/**********************************************/
+int USB_TEST = 1;
+
 
 
 void setup() 
 { 
   RTC.ON(); 
-  // init USB port
-  USB.ON();
+  USB.ON();  // init USB port
+  
   USB.println(F("Nodo Waspmote Edificio B"));
 
   //////////////////////////
@@ -121,8 +143,8 @@ void setup()
  
   xbeeZB.ON();
  
-    // 1.5. wait for the module to set the parameters
-  delay(10000);
+  delay(10000);     // 1.5. wait for the module to set the parameters
+
 
   //////////////////////////
   // 2. check XBee's network parameters
@@ -138,14 +160,16 @@ void loop()
   USB.println("Inicio"); 
 
   RTC.getTime();
-//   USB.printf(RTC.year, RTC.month, RTC.day, RTC.hour,  RTC.minute,  RTC.second );
+    if(USB_TEST)   USB.printf(RTC.year, RTC.month, RTC.day, RTC.hour,  RTC.minute,  RTC.second );
     snprintf(timeStamp, sizeof(timeStamp), "%02u:%02u:%02u:%02u:%02u:%02u", RTC.year, RTC.month, RTC.date, RTC.hour,  RTC.minute,  RTC.second );
 
-   USB.printf("\n");
-   USB.println("Sensando");   
-   USB.printf("\n*** CALL MEASURE ***");
+   if(USB_TEST)   USB.printf("\n");
+   if(USB_TEST)   USB.println("Sensando");   
+   if(USB_TEST)   USB.printf("\n*** CALL MEASURE ***");
+
    measure();
-   USB.printf("\n*** RETURN OF MEASURE***");
+
+   if(USB_TEST)   USB.printf("\n*** RETURN OF MEASURE***");
    delay(70);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,9 +177,9 @@ void loop()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
     get_bat();
-    USB.println("get_bat");
+    if(USB_TEST)    USB.println("get_bat");
     
-    USB.println(timeStamp);
+    if(USB_TEST)    USB.println(timeStamp);
     snprintf(sensdata, sizeof(sensdata), "ID;A2;AC;TD");
     snprintf(sensdata, sizeof(sensdata),"%s;TS;%s",sensdata,timeStamp);
     snprintf(sensdata, sizeof(sensdata),"%s;BAT;%s",sensdata,batteryLevelString);
@@ -163,7 +187,7 @@ void loop()
     RTC.getTime();
 //   USB.printf(RTC.year, RTC.month, RTC.day, RTC.hour,  RTC.minute,  RTC.second );
     snprintf(timeStamp, sizeof(timeStamp), "%02u:%02u:%02u:%02u:%02u:%02u", RTC.year, RTC.month, RTC.date, RTC.hour,  RTC.minute,  RTC.second );
-    USB.println(timeStamp);
+    if(USB_TEST)    USB.println(timeStamp);
     
     snprintf(sensdata1, sizeof(sensdata1), "ID;A3;AC;TD");
     snprintf(sensdata1, sizeof(sensdata1),"%s;TS;%s",sensdata1,timeStamp);
@@ -177,8 +201,8 @@ void loop()
     snprintf(sensdata1, sizeof(sensdata1),"%s;%s;%s",sensdata1,CONNECTOR_E,connectorEString);
     snprintf(sensdata1, sizeof(sensdata1),"%s;%s;%s",sensdata1,CONNECTOR_F,connectorFString);  
 
-    USB.println(sensdata);
-    USB.println(sensdata1);
+    if(USB_TEST)    USB.println(sensdata);
+    if(USB_TEST)    USB.println(sensdata1);
 
   // Transmisión ZigBee   
   //////////////////////////
@@ -192,10 +216,12 @@ void loop()
     xbeeZB.setDestinationParams( packet, macAddress, sensdata);
 
 //  // 1.1. create new frame
+/********* ghost code **********/
 //  frame.createFrame(ASCII);  
 //
 //  // 1.2. add frame fields
-//  frame.addSensor(SENSOR_STR, "Paquete"); 
+/********* ghost code **********/
+///  frame.addSensor(SENSOR_STR, "Paquete"); 
 //  frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel() ); 
 //  
 //  USB.println(F("\n1. Created frame to be sent"));
@@ -206,65 +232,67 @@ void loop()
 //  //////////////////////////  
 //
 //  // send XBee packet
+/********* ghost code **********/
 //  error = xbeeZB.send( RX_ADDRESS, frame.buffer, frame.length );  
   
    error=xbeeZB.sendXBee(packet); 
     
-  USB.println(F("\n2. Send a packet to the RX node: "));
+    if(USB_TEST)  USB.println(F("\n2. Send a packet to the RX node: "));
   
-  // check TX flag
-  if( error == 0 )
-  {
-    USB.println(F("send ok"));
-    
-  }
-  else 
-  {
-    USB.println(F("send error"));
-    
-  }
+   // check TX flag
+   if( error == 0 ){
+        if(USB_TEST)  USB.println(F("send ok"));
+   }
+   else {
+        if(USB_TEST) USB.println(F("send error"));
+   }
 
   delay(60000);
   
-    xbeeZB.setDestinationParams( packet, macAddress, sensdata1);
+  xbeeZB.setDestinationParams( packet, macAddress, sensdata1);
 
 //  //////////////////////////
 //  // 2. send packet
 //  //////////////////////////  
 //
 //  // send XBee packet
+/********* ghost code **********/
 //  error = xbeeZB.send( RX_ADDRESS, frame.buffer, frame.length );  
   
    error=xbeeZB.sendXBee(packet); 
     
-  USB.println(F("\n2. Send a packet to the RX node: "));
+   if(USB_TEST)  USB.println(F("\n2. Send a packet to the RX node: "));
   
   // check TX flag
   if( error == 0 )
   {
-    USB.println(F("send ok"));
+      if(USB_TEST)  USB.println(F("send ok"));
     
   }
   else 
   {
-    USB.println(F("send error"));
+      if(USB_TEST) USB.println(F("send error"));
     
   }
- // Tarea Final del Loop   
-      USB.printf("Going to Sleepe with: ", sleepTime);
-      USB.println(sleepTime);      
-      PWR.deepSleep(sleepTime,RTC_OFFSET,RTC_ALM1_MODE1,ALL_OFF);
+ // Final assignment of the loop   
+    if(USB_TEST)      USB.printf("Going to Sleepe with: ", sleepTime);
+    if(USB_TEST)      USB.println(sleepTime);      
+    if(USB_TEST)      PWR.deepSleep(sleepTime,RTC_OFFSET,RTC_ALM1_MODE1,ALL_OFF);
 
 }  
     
  
 
-/*******************************************
- *
- *  checkNetworkParams - Check operating
- *  network parameters in the XBee module
- *
- *******************************************/
+ 
+//**************************************************************************************************
+//  checkNetworkParams
+//**************************************************************************************************
+//!*************************************************************************************
+//!	Name:	get_bat()									
+//!	Description: Check operating network parameters in the XBee module
+//!	Param : void														
+//!	Returns: void							
+//!*************************************************************************************
 void checkNetworkParams()
 {
   // 1. get operating 64-b PAN ID
@@ -275,53 +303,53 @@ void checkNetworkParams()
 
   while( xbeeZB.associationIndication != 0 )
   {   
-    printAssociationState();
+    if(USB_TEST)    printAssociationState();
 
     delay(2000);
 
     // get operating 64-b PAN ID
     xbeeZB.getOperating64PAN();
 
-    USB.print(F("operating 64-b PAN ID: "));
-    USB.printHex(xbeeZB.operating64PAN[0]);
-    USB.printHex(xbeeZB.operating64PAN[1]);
-    USB.printHex(xbeeZB.operating64PAN[2]);
-    USB.printHex(xbeeZB.operating64PAN[3]);
-    USB.printHex(xbeeZB.operating64PAN[4]);
-    USB.printHex(xbeeZB.operating64PAN[5]);
-    USB.printHex(xbeeZB.operating64PAN[6]);
-    USB.printHex(xbeeZB.operating64PAN[7]);
-    USB.println();     
+    if(USB_TEST)    USB.print(F("operating 64-b PAN ID: "));
+    if(USB_TEST)    USB.printHex(xbeeZB.operating64PAN[0]);
+    if(USB_TEST)    USB.printHex(xbeeZB.operating64PAN[1]);
+    if(USB_TEST)    USB.printHex(xbeeZB.operating64PAN[2]);
+    if(USB_TEST)    USB.printHex(xbeeZB.operating64PAN[3]);
+    if(USB_TEST)    USB.printHex(xbeeZB.operating64PAN[4]);
+    if(USB_TEST)    USB.printHex(xbeeZB.operating64PAN[5]);
+    if(USB_TEST)    USB.printHex(xbeeZB.operating64PAN[6]);
+    if(USB_TEST)    USB.printHex(xbeeZB.operating64PAN[7]);
+    if(USB_TEST)    USB.println();     
 
     xbeeZB.getAssociationIndication();
   }
 
-  USB.println(F("\nJoined a network!"));
+    if(USB_TEST)  USB.println(F("\nJoined a network!"));
 
   // 3. get network parameters 
   xbeeZB.getOperating16PAN();
   xbeeZB.getOperating64PAN();
   xbeeZB.getChannel();
 
-  USB.print(F("operating 16-b PAN ID: "));
-  USB.printHex(xbeeZB.operating16PAN[0]);
-  USB.printHex(xbeeZB.operating16PAN[1]);
-  USB.println();
+    if(USB_TEST)  USB.print(F("operating 16-b PAN ID: "));
+    if(USB_TEST)  USB.printHex(xbeeZB.operating16PAN[0]);
+    if(USB_TEST)  USB.printHex(xbeeZB.operating16PAN[1]);
+    if(USB_TEST)  USB.println();
 
-  USB.print(F("operating 64-b PAN ID: "));
-  USB.printHex(xbeeZB.operating64PAN[0]);
-  USB.printHex(xbeeZB.operating64PAN[1]);
-  USB.printHex(xbeeZB.operating64PAN[2]);
-  USB.printHex(xbeeZB.operating64PAN[3]);
-  USB.printHex(xbeeZB.operating64PAN[4]);
-  USB.printHex(xbeeZB.operating64PAN[5]);
-  USB.printHex(xbeeZB.operating64PAN[6]);
-  USB.printHex(xbeeZB.operating64PAN[7]);
-  USB.println();
+    if(USB_TEST)  USB.print(F("operating 64-b PAN ID: "));
+    if(USB_TEST)  USB.printHex(xbeeZB.operating64PAN[0]);
+    if(USB_TEST)  USB.printHex(xbeeZB.operating64PAN[1]);
+    if(USB_TEST)  USB.printHex(xbeeZB.operating64PAN[2]);
+    if(USB_TEST)  USB.printHex(xbeeZB.operating64PAN[3]);
+    if(USB_TEST)  USB.printHex(xbeeZB.operating64PAN[4]);
+    if(USB_TEST)  USB.printHex(xbeeZB.operating64PAN[5]);
+    if(USB_TEST)  USB.printHex(xbeeZB.operating64PAN[6]);
+    if(USB_TEST)  USB.printHex(xbeeZB.operating64PAN[7]);
+    if(USB_TEST)  USB.println();
 
-  USB.print(F("channel: "));
-  USB.printHex(xbeeZB.channel);
-  USB.println();
+    if(USB_TEST)  USB.print(F("channel: "));
+    if(USB_TEST)  USB.printHex(xbeeZB.channel);
+    if(USB_TEST)  USB.println();
 
 }
 
@@ -329,14 +357,19 @@ void checkNetworkParams()
 
 
 
-/*******************************************
- *
- *  printAssociationState - Print the state 
- *  of the association flag
- *
- *******************************************/
+ 
+//**************************************************************************************************
+//  printAssociationState -
+//**************************************************************************************************
+//!*************************************************************************************
+//!	Name:	get_bat()									
+//!	Description: Print the state of the association flag
+//!	Param : void														
+//!	Returns: void							
+//!*************************************************************************************
 void printAssociationState()
 {
+  
   switch(xbeeZB.associationIndication)
   {
   case 0x00  :  
@@ -390,6 +423,16 @@ void printAssociationState()
   }
 }
 
+//**************************************************************************************************
+//     get_battery level
+//**************************************************************************************************
+//!*************************************************************************************
+//!	Name:	get_bat()									
+//!	Description: Function used to get the current value of the battery and save it into the variable batteryLevelString
+//!	Param : void														
+//!	Returns: void							
+//!*************************************************************************************
+
 void get_bat()
 {
     PWR.getBatteryLevel();
@@ -400,139 +443,140 @@ void get_bat()
 }
 
 
+
+//**************************************************************************************************
+//     measure()
+//**************************************************************************************************
+//!*************************************************************************************
+//!	Name:	measure()									
+//!	Description: Function used to measure the sensors values of the waspmote and save them into various strings
+//!              connectorDString_Temp        Temperature string
+//!              connectorBString_OxyRedPot   ORP  string
+//!              connectorCString_pH          PH   string
+//!              connectorEString_dissOxy     Disolved Oxygen string
+//!              connectorFString_Conduc      Conductiviti String
+//!
+//!	Param : void														
+//!	Returns: void							
+//!*************************************************************************************
 void measure()
 {
   USB.printf("\n*** BEGIN OF MEASURE ***");
   
   //
-  // Encendido de tarjeta de sensores
+  // Sensor board on
     SensorGasv20.ON();
     delay(WAITTIME);
-    USB.printf("\n*** Tarjeta de gases encendida ***");
+    if(USB_TEST) USB.printf("\n*** Tarjeta de gases encendida ***");
   //
-  // Configuración de sensores
+  // Sensor configuration
   // 
-    // Temp - Temperatura - No necesita ser configurado ni encendido
+    // Temp - Temperature - Doesnt need to be configured or turned on
     
-    // Hum - Humedad - No necesita ser configurado ni encendido
+    // Hum - Humidity - Doesnt need to be configured or turned on
     
-    // Configuración de sensor CO2  
+    // CO2 Sensor Configuration 
     SensorGasv20.configureSensor(SENS_CO2, 7);
     
-    // Configuración de sensor NO2
+    // NO2 Sensor Configuration
     SensorGasv20.configureSensor(SENS_SOCKET3B, 1, 2);
     
-    // Configuración de sensor O2
-    SensorGasv20.configureSensor(SENS_O2, 1);
+    // O3 Sensor Configuration
+    SensorGasv20.configureSensor(SENS_SOCKET2B, 1, 10);
     
-    // Configuración de sensor CO
+    // CO Sensor Configuration
     SensorGasv20.configureSensor(SENS_SOCKET4CO, 1, 100);
  
-     USB.printf("\n*** Sensores configurados ***");
+    if(USB_TEST)  USB.printf("\n*** Sensores configurados ***");
   //
-  // Encendido de sensores
+  // Sensors ON
   //
-    // Temp - Temperatura - No necesita ser configurado ni encendido
     
-    // Hum - Humedad - No necesita ser configurado ni encendido
-    
-    // Encendido de sensor CO2
+    // CO2 
     SensorGasv20.setSensorMode(SENS_ON, SENS_CO2); 
 
-    // Encendido de sensor NO2
+    // NO2
     SensorGasv20.setSensorMode(SENS_ON, SENS_SOCKET3B);
     
-    // Encendido de sensor O2: No necesita ser encendido
- 
-    // Encendido de sensor CO
+    // O3
+    SensorGasv20.setSensorMode(SENS_ON, SENS_SOCKET2B);
+
+    // CO
     SensorGasv20.setSensorMode(SENS_ON, SENS_SOCKET4CO);
     
-    USB.printf("\n*** Sensores encendidos ***");
+    if(USB_TEST) USB.printf("\n*** Sensores encendidos ***");
     
   //
-  // Lectura de sensores - apagado tras lectura
+  // Sensor READ - shutted down after sensing
   //
-    // Lectura de sensor CO
-    // Tiempo de respuesta/espera
+    // CO
+    // Delay time
     delay(WAITTIME);
     //First dummy reading to set analog-to-digital channel
     SensorGasv20.readValue(SENS_SOCKET4CO);
     connectorFFloatValue = SensorGasv20.readValue(SENS_SOCKET4CO);    
     //Conversion into a string
-    dtostrf(connectorFFloatValue,1,2,connectorFString);
-    
-    // Apagado de sensor
+    Utils.float2String(connectorFFloatValue, connectorFString, 2);
+    // shut it off
     SensorGasv20.setSensorMode(SENS_OFF, SENS_SOCKET2B);
     
-    USB.printf("\n*** Sensor CO leido ***");
+    if(USB_TEST)  USB.printf("\n*** Sensor CO leido ***");
     
-    // Lectura de sensor Temp
-    // Tiempo de respuesta/espera
+    // Temperature sensor read
     delay(WAITTIME);
     //First dummy reading for analog-to-digital converter channel selection
     SensorGasv20.readValue(SENS_TEMPERATURE);
     //Sensor temperature reading
     connectorAFloatValue = SensorGasv20.readValue(SENS_TEMPERATURE);
     //Conversion into a string
-     dtostrf(connectorAFloatValue,1,2,connectorAString);  
+    Utils.float2String(connectorAFloatValue, connectorAString, 2);   
 
-    USB.printf("\n*** Sensor Temp leido ***");
+    if(USB_TEST)  USB.printf("\n*** Sensor Temp leido ***");
 
-    // Lectura de sensor Hum
-    // Tiempo de respuesta/espera
+    // Humidity READ
     delay(13*WAITTIME);
     //First dummy reading for analog-to-digital converter channel selection
     SensorGasv20.readValue(SENS_HUMIDITY);
     //Sensor temperature reading
     connectorBFloatValue = SensorGasv20.readValue(SENS_HUMIDITY);
     //Conversion into a string
-   dtostrf(connectorBFloatValue,1,2,connectorBString);  
+    Utils.float2String(connectorBFloatValue, connectorBString, 2);  
 
-    USB.printf("\n*** Sensor Hum leido ***");
+    if(USB_TEST)  USB.printf("\n*** Sensor Hum leido ***");
 
-    // Lectura de sensor NO2
-    // Tiempo de respuesta/espera
+    // NO2 Sensor READ
     delay(15*WAITTIME);
     //First dummy reading to set analog-to-digital channel
     SensorGasv20.readValue(SENS_SOCKET3B);
     connectorDFloatValue = SensorGasv20.readValue(SENS_SOCKET3B);    
     //Conversion into a string
-   dtostrf(connectorDFloatValue,1,2,connectorDString);
+    Utils.float2String(connectorDFloatValue, connectorDString, 2);
     // Apagado de sensor
     SensorGasv20.setSensorMode(SENS_OFF, SENS_SOCKET3B);
 
-    USB.printf("\n*** Sensor NO2 leido ***");
+    if(USB_TEST)   USB.printf("\n*** Sensor NO2 leido ***");
 
-    // Lectura de sensor O3
-    // Tiempo de respuesta/espera
-    // Junto con NO2
-    //First dummy reading to set analog-to-digital channel
-    SensorGasv20.readValue(SENS_O2);
-    connectorEFloatValue = SensorGasv20.readValue(SENS_O2);    
+    // O3 Sensor READ
+    SensorGasv20.readValue(SENS_SOCKET2B);
+    connectorEFloatValue = SensorGasv20.readValue(SENS_SOCKET2B);    
     //Conversion into a string
-   dtostrf(connectorEFloatValue,1,2,connectorEString);
-    // Apagado de sensor: O2 no necesita ser encendido/apagado
-     
-    USB.printf("\n*** Sensor O2 leido ***");
+    Utils.float2String(connectorEFloatValue, connectorEString, 2);
+    // turn off sensor
+    SensorGasv20.setSensorMode(SENS_OFF, SENS_SOCKET2B);
     
-    // Lectura de sensor CO2
-    // Tiempo de respuesta/espera
-    delay(15*WAITTIME);
-    delay(15*WAITTIME);
-    delay(15*WAITTIME);
-    delay(15*WAITTIME); 
+    if(USB_TEST)  USB.printf("\n*** Sensor O3 leido ***");
+    
+    // CO2 sensor READ
+    delay(60*WAITTIME);
     //First dummy reading to set analog-to-digital channel
     SensorGasv20.readValue(SENS_CO2);
     connectorCFloatValue = SensorGasv20.readValue(SENS_CO2);    
     //Conversion into a string
-   dtostrf(connectorCFloatValue,1,2,connectorCString);
-    // Apagado de sensor
+    Utils.float2String(connectorCFloatValue, connectorCString, 2);
+    // sensor off
     SensorGasv20.setSensorMode(SENS_OFF, SENS_CO2);
     
-    USB.printf("\n*** Sensor CO2 leido ***");
-
-    
-    USB.printf("\n*** END OF MEASURE***");
+    if(USB_TEST)   USB.printf("\n*** Sensor CO2 leido ***");
+    if(USB_TEST)   USB.printf("\n*** END OF MEASURE***");
 }
-
 
