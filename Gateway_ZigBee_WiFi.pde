@@ -10,7 +10,6 @@
 /******************************************************************************
  * Includes            Includes of the Sensor Board and Communications modules used
  ******************************************************************************/
-//#include <Wasp232.h>    //Include always this library when you are using the Wasp232 functions  
 #include <WaspWIFI.h>
 /******************************************************************************
  * Definitions & Variable Declarations
@@ -102,29 +101,24 @@ void setup() {
 
   
   // Powers on the module and assigns the UART in socket0
- // W232.ON(SOCKET0);        // USED IN THE wasp232lib
   Utils.setMuxSocket0();
   pinMode(XBEE_PW,OUTPUT);
   digitalWrite(XBEE_PW,HIGH);
   WaspRegister |=REG_SOCKET0;
   
   // Configure the baud rate of the module
- // W232.baudRateConfig(9600);      // USED IN THE wasp232lib
   beginSerial(115200, SOCKET0);
 
   // Configure the parity bit as disabled 
-//  W232.parityBit(NONE);      // USED IN THE wasp232lib
   cbi(UCSR0C, UPM01);
   cbi(UCSR0C, UPM00);
 
   // Use one stop bit configuration
-//  W232.stopBitConfig(1);     // USED IN THE wasp232lib
   cbi(UCSR0C, USBS0);
   
   // Print hello message
   if(USB_TEST)   USB.println("Seccion de Set-Up - ZigBee-Receiver-WiFi - V1");
 
-  //W232.OFF();    // USED IN THE wasp232lib
 }
 
 
@@ -169,7 +163,7 @@ void loop()
   // Cuando la trama Waspmote es recibida:
   //    - se extrae del campo "Received RF data" de la trama ZigBee 0x90 la trama TD y obtienen los valores de los sensores en "measure()"
   //    - en "transmitFrameXBee()" se forman las lineas del protocolo HTTP para el envio de la trama TD utilizando el comando GET
-  //      (en esta versión de programa solo se muestra en pantalla, no se transmite)
+
  
    if (flagRx==2){
        if(USB_TEST){
@@ -184,7 +178,7 @@ void loop()
       if(USB_TEST)  USB.println(sensdata);
   
   
-      // transmitFrame();
+      transmitFrame();
   
       flagRx=0;
     }
@@ -196,7 +190,7 @@ void loop()
 //**************************************************************************************************
 //!*************************************************************************************
 //!	Name:	RxTemp()									
-//!	Description: 
+//!	Description: Function Description
 //!	Param : void														
 //!	Returns: void							
 //!*************************************************************************************
@@ -210,9 +204,6 @@ void RxTemp(){
     while (flagRx==0){
          if (serialAvailable(SOCKET0)){
 
-        // Read one byte from the buffer
-        //char data = W232.read();
-     //      data =serialRead(SOCKET0);
              dataRead[cont] = serialRead(SOCKET0);
                  if (cont==3) {
                      if((dataRead[0] == 126) && ((dataRead[3] == 146)||(dataRead[3] == 144))) {
@@ -225,10 +216,7 @@ void RxTemp(){
                     flagRx=(146-dataRead[3])/2+1;
                     cont=0; flagFrame=0;serialFlush(SOCKET0);
                 }     
-                cont++;
-           /*******GHOST CODE*********/
-//          if (flagCont==1){cont=0; flagCont=0;serialFlush(SOCKET0)} 
-  
+                cont++;  
           }
      }
 }

@@ -38,6 +38,7 @@
 //#define AUTHKEY "9e6ce6e3"
 #define HOST "papvidadigital-test.com"
 #define URL "GET /nodos/sensiteso.php?data="
+
 /**********************************************/
 /**** TEST MODE  value != 0 for printing,******/
 /**********************************************/
@@ -78,6 +79,7 @@ static int dataRead[512];
 static int flagRx=0;
 static unsigned int addressRx;
 static char sensdata[300];
+static char dataDNS[15];
 
 // variable to measure time
 static unsigned long previous;
@@ -91,20 +93,55 @@ static int numID=10;
 static char  TIME_STAMP[3] = "TS";
 static char  timeStamp[20];
 static char  ID[3];
-static char  CONNECTOR_A[6] = "TmpS";
-static char  CONNECTOR_B[7] = "TmpI";
-static char  CONNECTOR_C[5] = "HumS";
+
+/// GATEWAY VARIABLES
+static char  CONNECTOR_A_GATE[6] = "TmpS";
+static char  CONNECTOR_B_GATE[7] = "TmpI";
+static char  CONNECTOR_C_GATE[5] = "HumS";
+
+// LAS AGUILAS NODE VARIABLES
+static char  CONNECTOR_A_AGUILAS[5] = "Temp";      
+static char  CONNECTOR_B_AGUILAS[4] = "Hum";    
+static char  CONNECTOR_C_AGUILAS[4] = "C02";
+static char  CONNECTOR_D_AGUILAS[4] = "NO2";
+static char  CONNECTOR_E_AGUILAS[3] = "03";
+static char  CONNECTOR_F_AGUILAS[3] = "CO";
+
+static char  nodeID_AGUILAS[10] = "A1";   
+
+
 static char  BATTERY[4] = "BAT";
+
+
+
+static char* macAddress="000000000000FFFF"; 
+static char* filename="FILEDATA.TXT";
 
 static float voltemp;
 static float connectorAFloatValue;
 static float connectorBFloatValue;
 static float connectorCFloatValue;
+static float connectorDFloatValue;   
+static float connectorEFloatValue;
+static float connectorFFloatValue;
+
+
+static int connectorAIntValue;
+static int connectorBIntValue;
+static int connectorCIntValue;
+static int connectorDIntValue;
+static int connectorEIntValue;
+static int connectorFIntValue;
+
 static float batteryLevelFloatValue;
 
 static char  connectorAString[10];
 static char  connectorBString[10];
 static char  connectorCString[10];
+static char  connectorDString[10];
+static char  connectorEString[10];
+static char  connectorFString[10];
+
 
 static int   batteryLevel;
 static int   batteryLevelWasp;
@@ -131,6 +168,7 @@ public:
 	void RxTemp();
 	void measure();
 	void createFrameXBee();
+	void createFrameXBee_AGUILAS();
     void createFrameWasp() ;
 	void get_bat();
 	void transmitFrame();

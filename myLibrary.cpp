@@ -226,11 +226,49 @@ void myLibrary::createFrameXBee(){
   snprintf(sensdata, sizeof(sensdata), "ID;I%u;AC;TD;", intID);  
   snprintf(sensdata, sizeof(sensdata),"%sTN;0", sensdata);
   snprintf(sensdata, sizeof(sensdata), "%s;%s;%s", sensdata, BATTERY, batteryLevelString);
-  snprintf(sensdata, sizeof(sensdata), "%s;%s;%s", sensdata, CONNECTOR_A, connectorAString);
-  snprintf(sensdata, sizeof(sensdata), "%s;%s;%s", sensdata, CONNECTOR_B, connectorBString);
-  snprintf(sensdata, sizeof(sensdata), "%s;%s;%s", sensdata, CONNECTOR_C, connectorCString);
+  snprintf(sensdata, sizeof(sensdata), "%s;%s;%s", sensdata, CONNECTOR_A_GATE, connectorAString);
+  snprintf(sensdata, sizeof(sensdata), "%s;%s;%s", sensdata, CONNECTOR_B_GATE, connectorBString);
+  snprintf(sensdata, sizeof(sensdata), "%s;%s;%s", sensdata, CONNECTOR_C_GATE, connectorCString);
 
 }
+
+
+
+
+//**************************************************************************************************
+//     Creat createFrameXBee_AGUILAS()
+//**************************************************************************************************
+//!*************************************************************************************
+//!	Name:	createFrameXBee_AGUILAS()									
+//!	Description: Function used to create the XBee data Frame
+//!           Works with global variables.
+//!           Lot of concatenations.
+//!           
+//!	Param : void														
+//!	Returns: void							
+//!*************************************************************************************
+
+void myLibrary::createFrameXBee_AGUILAS() {
+
+    // Formación de la trama TD para el sistema de monitoreo.
+
+    memset(sensdata, 0, sizeof(sensdata));
+   
+    snprintf(sensdata, sizeof(sensdata),"ID;%s;AC;TD",nodeID_AGUILAS);   
+    snprintf(sensdata, sizeof(sensdata),"%s;TS;%s",sensdata,timeStamp);
+    snprintf(sensdata, sizeof(sensdata),"%s;BAT;%s",sensdata,batteryLevelString);
+    
+    snprintf(sensdata, sizeof(sensdata),"%s;%s;%s",sensdata,CONNECTOR_A_AGUILAS,connectorAString);
+    snprintf(sensdata, sizeof(sensdata),"%s;%s;%s",sensdata,CONNECTOR_B_AGUILAS,connectorBString);
+    snprintf(sensdata, sizeof(sensdata),"%s;%s;%s",sensdata,CONNECTOR_C_AGUILAS,connectorCString);
+    snprintf(sensdata, sizeof(sensdata),"%s;%s;%s",sensdata,CONNECTOR_D_AGUILAS,connectorDString);
+    snprintf(sensdata, sizeof(sensdata),"%s;%s;%s",sensdata,CONNECTOR_E_AGUILAS,connectorEString);
+    snprintf(sensdata, sizeof(sensdata),"%s;%s;%s",sensdata,CONNECTOR_F_AGUILAS,connectorFString);  
+
+}
+
+
+
 //**************************************************************************************************
 //     RX TEMP
 //**************************************************************************************************
@@ -340,6 +378,145 @@ void myLibrary::measure(){
     
   return;
 }
+
+
+
+//**************************************************************************************************
+//     measure_Aguilas()
+//**************************************************************************************************
+//!*************************************************************************************
+//!	Name:	measure_Aguilas()									
+//!	Description: Function used to measure the sensors values of the waspmote and save them into various strings
+//!              connectorDString_Temp        Temperature string
+//!              connectorBString_OxyRedPot   ORP  string
+//!              connectorCString_pH          PH   string
+//!              connectorEString_dissOxy     Disolved Oxygen string
+//!              connectorFString_Conduc      Conductiviti String
+//!
+//!	Param : void														
+//!	Returns: void							
+//!*************************************************************************************
+void myLibrary::measure_Aguilas()
+{
+  USB.printf("\n*** BEGIN OF MEASURE ***");
+  
+  //
+  // Sensor board on
+    SensorGasv20.ON();
+    delay(WAITTIME);
+    if(USB_TEST) USB.printf("\n*** Tarjeta de gases encendida ***");
+  //
+  // Sensor configuration
+  // 
+    // Temp - Temperature - Doesnt need to be configured or turned on
+    
+    // Hum - Humidity - Doesnt need to be configured or turned on
+    
+    // CO2 Sensor Configuration 
+    SensorGasv20.configureSensor(SENS_CO2, 7);
+    
+    // NO2 Sensor Configuration
+    SensorGasv20.configureSensor(SENS_SOCKET3B, 1, 2);
+    
+    // O3 Sensor Configuration
+    SensorGasv20.configureSensor(SENS_SOCKET2B, 1, 10);
+    
+    // CO Sensor Configuration
+    SensorGasv20.configureSensor(SENS_SOCKET4CO, 1, 100);
+ 
+    if(USB_TEST)  USB.printf("\n*** Sensores configurados ***");
+  //
+  // Sensors ON
+  //
+    
+    // CO2 
+    SensorGasv20.setSensorMode(SENS_ON, SENS_CO2); 
+
+    // NO2
+    SensorGasv20.setSensorMode(SENS_ON, SENS_SOCKET3B);
+    
+    // O3
+    SensorGasv20.setSensorMode(SENS_ON, SENS_SOCKET2B);
+
+    // CO
+    SensorGasv20.setSensorMode(SENS_ON, SENS_SOCKET4CO);
+    
+    if(USB_TEST) USB.printf("\n*** Sensores encendidos ***");
+    
+  //
+  // Sensor READ - shutted down after sensing
+  //
+    // CO
+    // Delay time
+    delay(WAITTIME);
+    //First dummy reading to set analog-to-digital channel
+    SensorGasv20.readValue(SENS_SOCKET4CO);
+    connectorFFloatValue = SensorGasv20.readValue(SENS_SOCKET4CO);    
+    //Conversion into a string
+    Utils.float2String(connectorFFloatValue, connectorFString, 2);
+    // shut it off
+    SensorGasv20.setSensorMode(SENS_OFF, SENS_SOCKET2B);
+    
+    if(USB_TEST)  USB.printf("\n*** Sensor CO leido ***");
+    
+    // Temperature sensor read
+    delay(WAITTIME);
+    //First dummy reading for analog-to-digital converter channel selection
+    SensorGasv20.readValue(SENS_TEMPERATURE);
+    //Sensor temperature reading
+    connectorAFloatValue = SensorGasv20.readValue(SENS_TEMPERATURE);
+    //Conversion into a string
+    Utils.float2String(connectorAFloatValue, connectorAString, 2);   
+
+    if(USB_TEST)  USB.printf("\n*** Sensor Temp leido ***");
+
+    // Humidity READ
+    delay(13*WAITTIME);
+    //First dummy reading for analog-to-digital converter channel selection
+    SensorGasv20.readValue(SENS_HUMIDITY);
+    //Sensor temperature reading
+    connectorBFloatValue = SensorGasv20.readValue(SENS_HUMIDITY);
+    //Conversion into a string
+    Utils.float2String(connectorBFloatValue, connectorBString, 2);  
+
+    if(USB_TEST)  USB.printf("\n*** Sensor Hum leido ***");
+
+    // NO2 Sensor READ
+    delay(15*WAITTIME);
+    //First dummy reading to set analog-to-digital channel
+    SensorGasv20.readValue(SENS_SOCKET3B);
+    connectorDFloatValue = SensorGasv20.readValue(SENS_SOCKET3B);    
+    //Conversion into a string
+    Utils.float2String(connectorDFloatValue, connectorDString, 2);
+    // Apagado de sensor
+    SensorGasv20.setSensorMode(SENS_OFF, SENS_SOCKET3B);
+
+    if(USB_TEST)   USB.printf("\n*** Sensor NO2 leido ***");
+
+    // O3 Sensor READ
+    SensorGasv20.readValue(SENS_SOCKET2B);
+    connectorEFloatValue = SensorGasv20.readValue(SENS_SOCKET2B);    
+    //Conversion into a string
+    Utils.float2String(connectorEFloatValue, connectorEString, 2);
+    // turn off sensor
+    SensorGasv20.setSensorMode(SENS_OFF, SENS_SOCKET2B);
+    
+    if(USB_TEST)  USB.printf("\n*** Sensor O3 leido ***");
+    
+    // CO2 sensor READ
+    delay(60*WAITTIME);
+    //First dummy reading to set analog-to-digital channel
+    SensorGasv20.readValue(SENS_CO2);
+    connectorCFloatValue = SensorGasv20.readValue(SENS_CO2);    
+    //Conversion into a string
+    Utils.float2String(connectorCFloatValue, connectorCString, 2);
+    // sensor off
+    SensorGasv20.setSensorMode(SENS_OFF, SENS_CO2);
+    
+    if(USB_TEST)   USB.printf("\n*** Sensor CO2 leido ***");
+    if(USB_TEST)   USB.printf("\n*** END OF MEASURE***");
+}
+
 
 myLibrary::myLibrary(){
 }
